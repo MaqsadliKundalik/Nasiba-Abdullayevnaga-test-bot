@@ -12,8 +12,8 @@ router = Router()
 @router.message(RegistrationStates.WAITING_FOR_NAME)    
 async def process_name(message: Message, state: FSMContext):
     name = message.text.strip()
-    if not name.replace(" ", "").isalpha():
-        await message.answer("Iltimos, faqat harflardan iborat ism-familya kiriting.")
+    if len(name.split()) < 2:
+        await message.answer("Iltimos, ism-familyangizni yuboring.")
         return
 
     await User.create(tg_id=message.from_user.id, name=name)
