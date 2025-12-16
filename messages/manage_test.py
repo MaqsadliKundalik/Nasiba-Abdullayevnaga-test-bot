@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message
 from utils.models import User, Tests, UserAnswers
 from tortoise.exceptions import DoesNotExist
+from config import ADMIN
 import re
 
 router = Router()
@@ -10,7 +11,7 @@ def check_test_keys_format(test_key: str) -> bool:
     pattern = r'^(?:\d+[a-zA-Z])+$'
     return bool(re.fullmatch(pattern, test_key))
 
-@router.message(F.text.startswith('new '))
+@router.message(F.chat.id == ADMIN,F.text.startswith('new '))
 async def manage_test(message: Message):
     test_keys = message.text.split()[1]
     user = await User.get(tg_id=message.from_user.id)
@@ -21,7 +22,7 @@ async def manage_test(message: Message):
     test = await Tests.create(user=user, test_keys=test_keys)
     await message.answer(f"Yangi test yaratildi!\n\nTest kodi: `{test.id}`", parse_mode="MARKDOWN")
 
-@router.message(F.text.startswith('stop '))
+@router.message(F.chat.id == ADMIN, F.text.startswith('stop '))
 async def stop_test(message: Message):
     parts = message.text.split(maxsplit=1)
     if len(parts) < 2:
@@ -77,7 +78,7 @@ async def stop_test(message: Message):
     msg += f"\n\nJami qatnashganlar soni: {await UserAnswers.filter(test=test).count()}"
     await message.answer(msg[:4000])  
 
-@router.message(F.text.startswith("edit "))
+@router.message(F.chat.id == ADMIN, F.text.startswith("edit "))
 async def edit_test(message: Message):
     parts = message.text.split(maxsplit=2)
     if len(parts) < 3:
