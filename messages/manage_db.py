@@ -7,7 +7,7 @@ router = Router()
 async def send_db_backup(message: Message):
     if message.chat.id != 5165396993:
         return
-    db_file = FSInputFile('db.sqlite3', filename='database_backup.sqlite')
+    db_file = FSInputFile('db.sqlite3', filename='db.sqlite3')
     await message.answer_document(db_file, caption="Here is the database backup.")
 
 @router.message(F.text == 'changedb')
