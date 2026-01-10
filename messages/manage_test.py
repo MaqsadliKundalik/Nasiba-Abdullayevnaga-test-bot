@@ -174,7 +174,7 @@ async def test_report(message: Message):
     current_col = 1
         
     # Umumiy jadval yaratish
-    summary_start_row = 35
+    summary_start_row = 1
     ws.cell(row=summary_start_row, column=1, value="FISH")
     ws.cell(row=summary_start_row, column=2, value=f"Yuborilgan javoblar soni({sum(len(t.test_keys)//2 for t in tests)})")
     ws.cell(row=summary_start_row, column=3, value="%")
