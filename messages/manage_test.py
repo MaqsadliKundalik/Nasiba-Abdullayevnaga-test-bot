@@ -137,7 +137,7 @@ async def test_report(message: Message):
         await message.answer("Foydalanuvchi topilmadi.")
         return
 
-    tests = await Tests.filter(id__in=range(test_id1, test_id2 + 1), user=user).order_by('id').all()
+    tests = await Tests.filter(id__in=range(test_id1, test_id2 + 1)).order_by('id').all()
     
     if not tests:
         await message.answer("Belgilangan oraliqda testlar topilmadi.")
