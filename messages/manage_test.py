@@ -172,49 +172,7 @@ async def test_report(message: Message):
     
     # Sarlavhalar
     current_col = 1
-    
-    # Har bir test uchun ustun yaratish
-    test_col_map = {}
-    for test in tests:
-        test_col_map[test.id] = current_col
-        total_q = len(test.test_keys) // 2
-        ws.cell(row=1, column=current_col, value=f"{test.id}({total_q})")
-        ws.cell(row=1, column=current_col).font = Font(bold=True, size=12)
-        ws.cell(row=1, column=current_col).alignment = Alignment(horizontal='center')
-        ws.cell(row=1, column=current_col).fill = PatternFill(start_color="D3D3D3", end_color="D3D3D3", fill_type="solid")
-        current_col += 1
-    
-    # Har bir test uchun natijalarni yozish
-    for test in tests:
-        col = test_col_map[test.id]
-        test_answers = await UserAnswers.filter(test=test).select_related('user').order_by('-score', 'created_at').limit(30).all()
         
-        ws.cell(row=2, column=col, value="Natijalar:")
-        ws.cell(row=2, column=col).font = Font(bold=True)
-        
-        row = 3
-        for idx, answer in enumerate(test_answers, 1):
-            student_name = answer.user.name or f"ID:{answer.user.id}"
-            time_spent = (answer.created_at - test.created_at).total_seconds() / 60
-            
-            medal = ""
-            if idx == 1:
-                medal = "🥇 "
-            elif idx == 2:
-                medal = "🥈 "
-            elif idx == 3:
-                medal = "🥉 "
-            
-            text = f"{medal}{student_name} - {answer.score} ta ({round(time_spent, 1)} min)"
-            ws.cell(row=row, column=col, value=text)
-            ws.cell(row=row, column=col).alignment = Alignment(wrap_text=True)
-            row += 1
-        
-        # Jami qatnashganlar
-        total_participants = await UserAnswers.filter(test=test).count()
-        ws.cell(row=row, column=col, value=f"Jami qatnashganlar soni: {total_participants}")
-        ws.cell(row=row, column=col).font = Font(italic=True)
-    
     # Umumiy jadval yaratish
     summary_start_row = 35
     ws.cell(row=summary_start_row, column=1, value="FISH")
