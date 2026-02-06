@@ -12,6 +12,7 @@ class Tests(models.Model):
     id = fields.IntField(pk=True)
     user = fields.ForeignKeyField('models.User', related_name='tests')
     test_keys = fields.TextField()
+    test_code = fields.CharField(max_length=20)
     status = fields.CharField(max_length=20, default='active')
     created_at = fields.DatetimeField(auto_now_add=True)
 

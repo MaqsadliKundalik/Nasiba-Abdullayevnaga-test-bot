@@ -18,13 +18,20 @@ def check_test_keys_format(test_key: str) -> bool:
 
 @router.message(F.chat.id == ADMIN,F.text.startswith('new '))
 async def manage_test(message: Message):
-    test_keys = message.text.split()[1]
+    test_keys = message.text.split()[2]
+    test_code = message.text.split()[1]
+
+    existing_test = await Tests.filter(test_code=test_code).first()
+    if existing_test:
+        await message.answer("Bu test kodi allaqachon mavjud. Iltimos, boshqa kod kiriting.")
+        return
+
     user = await User.get(tg_id=message.from_user.id)
     if not check_test_keys_format(test_keys):
         await message.answer("Test kaliti noto'g'ri formatda. Iltimos, to'g'ri formatda kiriting (masalan: 1a2b3c...).")
         return
 
-    test = await Tests.create(user=user, test_keys=test_keys)
+    test = await Tests.create(user=user, test_keys=test_keys, test_code=test_code)
     await message.answer(f"Yangi test yaratildi!\n\nTest kodi: `{test.id}`", parse_mode="MARKDOWN")
 
 @router.message(F.chat.id == ADMIN, F.text.startswith('stop '))
