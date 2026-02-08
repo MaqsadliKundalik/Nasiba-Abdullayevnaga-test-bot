@@ -42,7 +42,7 @@ async def check_test(message: Message):
         await message.answer("Foydalanuvchi topilmadi.")
         return
 
-    test = await Tests.filter(id=test_id).first()
+    test = await Tests.filter(test_code=test_code_raw).first()
     if not test:
         await message.answer("Sizda bunday test mavjud emas.")
         return

@@ -32,7 +32,7 @@ async def manage_test(message: Message):
         return
 
     test = await Tests.create(user=user, test_keys=test_keys, test_code=test_code)
-    await message.answer(f"Yangi test yaratildi!\n\nTest kodi: `{test.id}`", parse_mode="MARKDOWN")
+    await message.answer(f"Yangi test yaratildi!\n\nTest kodi: `{test.test_code}`", parse_mode="MARKDOWN")
 
 @router.message(F.chat.id == ADMIN, F.text.startswith('stop '))
 async def stop_test(message: Message):
@@ -144,7 +144,7 @@ async def test_report(message: Message):
         await message.answer("Foydalanuvchi topilmadi.")
         return
 
-    tests = await Tests.filter(id__in=range(test_id1, test_id2 + 1)).order_by('id').all()
+    tests = await Tests.filter(test_code__in=range(test_id1, test_id2 + 1)).order_by('id').all()
     
     if not tests:
         await message.answer("Belgilangan oraliqda testlar topilmadi.")
