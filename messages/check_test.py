@@ -84,5 +84,5 @@ async def check_test(message: Message):
 
     header = f"Sizning natijangiz: {correct}/{total}"
     body = f"{header}\n\n{result_table}\n\n"
-    body += f"To'g'ri javoblar: {test.test_keys}"
+    body += f"To'g'ri javoblar: {test.test_keys.upper()}"
     await message.answer(body[:4000])
