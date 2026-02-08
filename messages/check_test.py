@@ -79,8 +79,10 @@ async def check_test(message: Message):
     lines = ['   '.join(results[i:i+cols]) for i in range(0, len(results), cols)]
     result_table = '\n'.join(lines)
 
+
     await UserAnswers.create(user=user, test=test, score=correct)
 
     header = f"Sizning natijangiz: {correct}/{total}"
-    body = f"{header}\n\n{result_table}"
+    body = f"{header}\n\n{result_table}\n\n"
+    body += f"To'g'ri javoblar: {test.test_keys}"
     await message.answer(body[:4000])
