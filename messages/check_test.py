@@ -84,5 +84,12 @@ async def check_test(message: Message):
 
     header = f"Sizning natijangiz: {correct}/{total}"
     body = f"{header}\n\n{result_table}\n\n"
-    body += f"To'g'ri javoblar: {test.test_keys.upper()}"
+    correct_answers_list = []
+    for idx, key in enumerate(key_letters):
+        correct_answers_list.append(f"{idx + 1:02d} {key.upper()}")
+
+    correct_lines = ['   '.join(correct_answers_list[i:i + cols]) for i in range(0, len(correct_answers_list), cols)]
+    correct_table = '\n'.join(correct_lines)
+
+    body += f"To'g'ri javoblar:\n{correct_table}"
     await message.answer(body[:4000])
