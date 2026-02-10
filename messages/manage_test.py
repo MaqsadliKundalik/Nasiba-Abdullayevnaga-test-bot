@@ -53,7 +53,7 @@ async def stop_test(message: Message):
         await message.answer("Foydalanuvchi topilmadi.")
         return
 
-    test = await Tests.filter(id=test_id, user=user).first()
+    test = await Tests.filter(test_code=test_code, user=user).first()
     if not test:
         await message.answer("Sizda bunday test mavjud emas.")
         return
@@ -110,7 +110,7 @@ async def edit_test(message: Message):
         await message.answer("Foydalanuvchi topilmadi.")
         return
 
-    test = await Tests.filter(id=test_id, user=user).first()
+    test = await Tests.filter(test_code=test_id, user=user).first()
     if not test:
         await message.answer("Sizda bunday test mavjud emas.")
         return
