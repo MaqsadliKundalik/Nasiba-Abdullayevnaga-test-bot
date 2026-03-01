@@ -44,7 +44,26 @@ async def create_test_slash(message: Message):
     user = await User.get(tg_id=message.from_user.id)
     test = await Tests.create(user=user, test_keys=test_keys, test_code=new_code)
     
-    await message.answer(f"✅ Yangi test yaratildi!\n\n🔢 Test kodi: `{test.test_code}`\n🔑 Kalitlar: `{test.test_keys}`", parse_mode="MARKDOWN")
+    num_questions = len(test_keys) // 2
+    bot_info = await message.bot.get_me()
+    bot_username = f"@{bot_info.username}"
+    
+    response_msg = (
+        f"<tg-emoji emoji-id=\"5458603970916270333\">🔈</tg-emoji><b>Javoblaringizni yuborishingiz uchun maxsus bot va kod berildi!</b>\n\n"
+        f"<b>Test muallifi:</b>\n{user.name}\n\n"
+        f"<b>Fan:</b> ATTESTATSIYA TESTI.\n"
+        f"<b>Savollar soni:</b> {num_questions} ta\n"
+        f"<b>Test kodi:</b> {test.test_code}\n\n\n"
+        f"Javoblaringizni {bot_username} ga quyidagi ko'rinishlarda yuborishingiz mumkin:\n\n"
+        f"<code>::{test.test_code}::*abcdabcd...</code>\n"
+        f"yoki\n"
+        f"<code>::{test.test_code}::*1a2b3c4d5a...</code>\n\n"
+        f"☝️ <b>Eslatma!</b>\n"
+        f"Javoblar aynan {bot_username} ga yuborilishi shart, boshqasiga emas.\n\n"
+        f"<tg-emoji emoji-id=\"5771711424711626153\">✅</tg-emoji>@onlaynonatili_uz"
+    )
+    
+    await message.answer(response_msg, parse_mode="HTML")
 
 
 @router.message(F.text.startswith('stop '))
