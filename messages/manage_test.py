@@ -49,7 +49,7 @@ async def create_test_slash(message: Message):
     bot_username = f"@{bot_info.username}"
     
     response_msg = (
-        f"<tg-emoji emoji-id=\"5458603970916270333\">🔈</tg-emoji><b>Javoblaringizni yuborishingiz uchun maxsus bot va kod berildi!</b>\n\n"
+        f"<tg-emoji emoji-id=\"5458603970916270333\">🔈</tg-emoji><b>Test boshlandi!</b>\n\n"
         f"<b>Test muallifi:</b>\n{user.name}\n\n"
         f"<b>Fan:</b> ATTESTATSIYA TESTI.\n"
         f"<b>Savollar soni:</b> {num_questions} ta\n"
