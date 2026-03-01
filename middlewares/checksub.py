@@ -24,3 +24,4 @@ class CheckSub(BaseMiddleware):
                 inline_kb.adjust(1)
                 await message.answer("Botdan foydalanish uchun kanalimizga obuna bo'ling.", reply_markup=inline_kb.as_markup())
         
+        await handler(event, state)
