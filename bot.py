@@ -14,7 +14,7 @@ async def main():
     bot = Bot(token=BOT_TOKEN)
     await init_db()
     dp.include_router(messages.router)
-    dp.message.middleware(CheckSub())
+    dp.update.middleware(CheckSub())
     await dp.start_polling(bot)
 
 run(main())
