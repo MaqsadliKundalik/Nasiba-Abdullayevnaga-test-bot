@@ -11,15 +11,16 @@ ADMINS = [int(admin.strip()) for admin in ADMINS.split(",")]
 CMD_MSG = """
 *BOT BILAN ISHLASH:*
 
-Test yechish uchun:
-`test <test_kodi> 1a2b3c...`
-`test <test_kodi> abcdef...`
-`test <test_kodi> 1a,2b,...`
-`test <test_kodi> a,b,c,...`
+<b>Test yechish uchun:</b>
+<code>::test_kodi::javoblar</code> ko'rinishida yuboring.
 
-Test yaratish uchun:
-`new <test_kodi>  1a2b3c...`
+<b>Namuna:</b> <code>::1001::abcd...</code> yoki <code>::1001::1a2b3c...</code>
 
-Testni yakunlash:
-`stop <test_kodi>`
+<b>Test yaratish uchun:</b>
+<code>//javoblar</code> ko'rinishida yuboring.
+
+<b>Namuna:</b> <code>//1a2b3c4d5e</code>
+
+<b>Testni yakunlash:</b>
+<code>stop test_kodi</code>
 """

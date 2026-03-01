@@ -28,10 +28,12 @@ async def process_test_check(message: Message, test_code_raw: str, user_answer_r
         await message.answer("Foydalanuvchi topilmadi.")
         return
 
-    test = await Tests.filter(test_code=test_code_raw).first()
+    test = await Tests.filter(test_code=test_code_raw).select_related('user').first()
     if not test:
         await message.answer(f"Sizda {test_code_raw} raqamli test mavjud emas.")
         return
+
+    creator = test.user
 
     if await UserAnswers.filter(user=user, test=test).exists():
         await message.answer("Siz allaqachon bu testga javob bergansiz.")
@@ -78,6 +80,18 @@ async def process_test_check(message: Message, test_code_raw: str, user_answer_r
 
     body += f"To'g'ri javoblar:\n{correct_table}"
     await message.answer(body[:4000])
+
+    # Test yaratuvchisiga xabar yuborish
+    try:
+        creator_msg = (
+            f"🔔 <b>Test natijasi!</b>\n\n"
+            f"👤 <b>Foydalanuvchi:</b> {user.name}\n"
+            f"🔢 <b>Test kodi:</b> {test_code_raw}\n"
+            f"✅ <b>Natija:</b> {correct}/{total}"
+        )
+        await message.bot.send_message(chat_id=creator.tg_id, text=creator_msg, parse_mode="HTML")
+    except Exception as e:
+        print(f"Yaratuvchiga xabar yuborishda xatolik: {e}")
 
 @router.message(F.text.regexp(r'^::(\d+)::(.+)$'))
 async def check_test_colons(message: Message):

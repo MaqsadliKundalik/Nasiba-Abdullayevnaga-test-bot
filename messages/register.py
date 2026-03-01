@@ -26,8 +26,7 @@ async def process_name(message: Message, state: FSMContext):
         return
 
     await User.create(tg_id=message.from_user.id, name=name)
-    await message.answer(f"Ro'yxatdan o'tganingiz uchun rahmat, {name}!")
-    await message.answer(CMD_MSG, parse_mode="MARKDOWN", reply_markup=main_btn.as_markup(resize_keyboard=True))
+    await message.answer(f"Ro'yxatdan o'tganingiz uchun rahmat, {name}!", reply_markup=main_btn.as_markup(resize_keyboard=True))
     await state.clear()
 
 @router.message(IsNewUser())
@@ -37,8 +36,7 @@ async def register_user(message: Message, state: FSMContext):
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    await message.answer(CMD_MSG, parse_mode="MARKDOWN", reply_markup=main_btn.as_markup(resize_keyboard=True))
-    await message.answer(f"Nima qilamiz?")
+    await message.answer("Nima qilamiz?", parse_mode="HTML", reply_markup=main_btn.as_markup(resize_keyboard=True))
 
 @router.message(F.text == "➕ Test yaratish")
 async def cmd_create_test(message: Message):

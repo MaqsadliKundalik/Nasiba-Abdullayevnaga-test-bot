@@ -15,13 +15,14 @@ class CheckSub(BaseMiddleware):
             if not user:
                 return
             channel_user = await message.bot.get_chat_member(CHANNEL_ID, message.from_user.id)
-            if channel_user.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR]:
-                await handler(event, state)
+            if channel_user.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+                return await handler(event, state)
             else:
                 inline_kb = InlineKeyboardBuilder()
                 inline_kb.button(text="Kanalga o'tish", url=CHANNEL_URL)
                 inline_kb.button(text="✅ Tekshirish", callback_data="check_sub")
                 inline_kb.adjust(1)
                 await message.answer("Botdan foydalanish uchun kanalimizga obuna bo'ling.", reply_markup=inline_kb.as_markup())
+                return
         
-        await handler(event, state)
+        return await handler(event, state)
