@@ -13,7 +13,7 @@ class CheckSub(BaseMiddleware):
             message = event.message
             user = await User.get_or_none(tg_id=message.from_user.id)
             if not user:
-                return
+                return await handler(event, state)
             channel_user = await message.bot.get_chat_member(CHANNEL_ID, message.from_user.id)
             if channel_user.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR]:
                 return await handler(event, state)
