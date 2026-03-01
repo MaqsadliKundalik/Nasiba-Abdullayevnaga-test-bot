@@ -2,13 +2,15 @@ from aiogram import Router, F
 from aiogram.types import Message, FSInputFile
 from utils.models import User, Tests, UserAnswers
 from tortoise.exceptions import DoesNotExist
-from config import ADMIN
+from config import ADMINS
+from aiogram.filters import Command
 import re
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from datetime import datetime
 from collections import defaultdict
 import os
+from messages.sertificates import generate_certificate
 
 router = Router()
 
@@ -16,7 +18,7 @@ def check_test_keys_format(test_key: str) -> bool:
     pattern = r'^(?:\d+[a-zA-Z])+$'
     return bool(re.fullmatch(pattern, test_key))
 
-@router.message(F.chat.id == ADMIN,F.text.startswith('new '))
+@router.message(F.text.startswith('new '))
 async def manage_test(message: Message):
     test_keys = message.text.split()[2]
     test_code = message.text.split()[1]
@@ -34,11 +36,11 @@ async def manage_test(message: Message):
     test = await Tests.create(user=user, test_keys=test_keys, test_code=test_code)
     await message.answer(f"Yangi test yaratildi!\n\nTest kodi: `{test.test_code}`", parse_mode="MARKDOWN")
 
-@router.message(F.chat.id == ADMIN, F.text.startswith('stop '))
+@router.message(F.text.startswith('stop '))
 async def stop_test(message: Message):
     parts = message.text.split(maxsplit=1)
     if len(parts) < 2:
-        await message.answer("Buyruq noto'g'ri. Namuna: /stop_test <test_id>")
+        await message.answer("Buyruq noto'g'ri. Namuna: stop <test_id>")
         return
     test_code = parts[1].strip()
     try:
@@ -90,7 +92,61 @@ async def stop_test(message: Message):
     msg += f"\n\nJami qatnashganlar soni: {await UserAnswers.filter(test=test).count()}"
     await message.answer(msg[:4000])  
 
-@router.message(F.chat.id == ADMIN, F.text.startswith("edit "))
+    # Sertifikatlar yuborish (Top 3 talik uchun)
+    
+    total_questions = len(test.test_keys) // 2
+    for idx, ans in enumerate(top_answers[:3], 1):
+        try:
+            cert_filename = f"certificate_{ans.user.id}_{test.test_code}.png"
+            generate_certificate(
+                fullname=ans.user.name or f"Foydalanuvchi {ans.user.id}",
+                score=ans.score,
+                total=total_questions,
+                output_path=cert_filename
+            )
+            
+            photo = FSInputFile(cert_filename)
+            await message.bot.send_document(
+                chat_id=message.chat.id,
+                document=photo,
+                caption=f"🏆 {idx}-o'rin: {ans.user.name}\nNatija: {ans.score}/{total_questions}"
+            )
+            
+            # Faylni o'chirish
+            if os.path.exists(cert_filename):
+                os.remove(cert_filename)
+        except Exception as e:
+            await message.answer(f"Sertifikat yaratishda xatolik ({idx}-o'rin): {str(e)}")
+
+@router.message(Command("sertifikat"))
+async def sertifikat(message: Message):
+    fake_data = {
+        "fullname": "Ali Valiyev",
+        "score": 25,
+        "total": 30
+    }
+    idx = 1
+    cert_filename = f"certificate_{message.from_user.id}_77.png"
+    generate_certificate(
+        fullname=fake_data["fullname"],
+        score=fake_data["score"],
+        total=fake_data["total"],
+        output_path=cert_filename
+    )
+    
+    photo = FSInputFile(cert_filename)
+    await message.bot.send_document(
+        chat_id=message.chat.id,
+        document=photo,
+        caption=f"🏆 {idx}-o'rin: {fake_data['fullname']}\nNatija: {fake_data['score']}/{fake_data['total']}"
+    )
+    
+    # Faylni o'chirish
+    if os.path.exists(cert_filename):
+        os.remove(cert_filename)
+
+
+@router.message(F.text.startswith("edit "))
 async def edit_test(message: Message):
     parts = message.text.split(maxsplit=2)
     if len(parts) < 3:
@@ -123,7 +179,7 @@ async def edit_test(message: Message):
     await test.save()
     await message.answer(f"Test kaliti muvaffaqiyatli yangilandi!")
     
-@router.message(F.chat.id == ADMIN, F.text.startswith("hisobot "))
+@router.message(F.text.startswith("hisobot "))
 async def test_report(message: Message):
     parts = message.text.split()
     if len(parts) < 3:

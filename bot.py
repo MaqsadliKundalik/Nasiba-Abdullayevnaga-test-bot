@@ -2,7 +2,10 @@ from aiogram import Bot, Dispatcher
 from config import BOT_TOKEN
 from asyncio import run
 import messages
+import logging
 from utils.database import init_db
+
+logging.basicConfig(level=logging.INFO)
 
 dp = Dispatcher()
 

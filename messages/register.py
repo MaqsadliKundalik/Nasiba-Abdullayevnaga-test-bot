@@ -28,4 +28,5 @@ async def register_user(message: Message, state: FSMContext):
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
+    await message.answer(CMD_MSG, parse_mode="MARKDOWN")
     await message.answer(f"Nima qilamiz?")
