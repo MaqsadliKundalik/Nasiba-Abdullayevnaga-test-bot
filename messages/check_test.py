@@ -78,7 +78,7 @@ async def process_test_check(message: Message, test_code_raw: str, user_answer_r
     correct_lines = ['   '.join(correct_answers_list[i:i + cols]) for i in range(0, len(correct_answers_list), cols)]
     correct_table = '\n'.join(correct_lines)
 
-    body += f"To'g'ri javoblar:\n{correct_table}"
+    # body += f"To'g'ri javoblar:\n{correct_table}"
     await message.answer(body[:4000])
 
     # Test yaratuvchisiga xabar yuborish

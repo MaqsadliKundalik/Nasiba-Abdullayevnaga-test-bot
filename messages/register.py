@@ -14,8 +14,8 @@ router = Router()
 
 
 main_btn = ReplyKeyboardBuilder()
-main_btn.button(text="➕ Test yaratish")
 main_btn.button(text="✅ Javobni tekshirish")
+main_btn.button(text="➕ Test yaratish")
 main_btn.adjust(1)
 
 @router.message(RegistrationStates.WAITING_FOR_NAME)    
@@ -59,7 +59,7 @@ async def cmd_check_answer(message: Message):
 @router.callback_query(F.data == "check_sub")
 async def check_sub(callback: CallbackQuery):
     channel_user = await callback.bot.get_chat_member(CHANNEL_ID, callback.from_user.id)
-    if channel_user.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+    if channel_user.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR]:
         await callback.message.edit_text("Obuna bo'lganingiz uchun raxmat", reply_markup=main_btn.as_markup(resize_keyboard=True))
     else:
         await callback.answer("Botdan foydalanish uchun kanalimizga obuna bo'ling.", show_alert=True)

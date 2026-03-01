@@ -15,7 +15,7 @@ class CheckSub(BaseMiddleware):
             if not user:
                 return
             channel_user = await message.bot.get_chat_member(CHANNEL_ID, message.from_user.id)
-            if channel_user.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+            if channel_user.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR]:
                 return await handler(event, state)
             else:
                 inline_kb = InlineKeyboardBuilder()
