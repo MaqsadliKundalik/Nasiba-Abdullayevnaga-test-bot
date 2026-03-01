@@ -4,6 +4,7 @@ from asyncio import run
 import messages
 import logging
 from utils.database import init_db
+from middlewares.checksub import CheckSub
 
 logging.basicConfig(level=logging.INFO)
 
@@ -13,7 +14,7 @@ async def main():
     bot = Bot(token=BOT_TOKEN)
     await init_db()
     dp.include_router(messages.router)
-
+    dp.message.middleware(CheckSub())
     await dp.start_polling(bot)
 
 run(main())

@@ -21,21 +21,7 @@ def extract_user_letters(s: str) -> list[str]:
         return [p[-1].lower() for p in pairs]
     return [ch.lower() for ch in LETTER_RE.findall(raw)]
 
-@router.message(F.text.startswith('test '))
-async def check_test(message: Message):
-    text = (message.text or '').strip()
-    parts = text.split(maxsplit=2)
-    if len(parts) < 3:
-        await message.answer("To'g'ri format: test <test_kodi> <javoblar>\nMasalan: test 123 1a2b3c10d yoki test 123 abcd")
-        return
-
-    _, test_code_raw, user_answer_raw = parts
-    try:
-        test_id = int(test_code_raw)
-    except ValueError:
-        await message.answer("Test kodi butun son bo'lishi kerak.")
-        return
-
+async def process_test_check(message: Message, test_code_raw: str, user_answer_raw: str):
     try:
         user = await User.get(tg_id=message.from_user.id)
     except DoesNotExist:
@@ -44,7 +30,7 @@ async def check_test(message: Message):
 
     test = await Tests.filter(test_code=test_code_raw).first()
     if not test:
-        await message.answer("Sizda bunday test mavjud emas.")
+        await message.answer(f"Sizda {test_code_raw} raqamli test mavjud emas.")
         return
 
     if await UserAnswers.filter(user=user, test=test).exists():
@@ -79,7 +65,6 @@ async def check_test(message: Message):
     lines = ['   '.join(results[i:i+cols]) for i in range(0, len(results), cols)]
     result_table = '\n'.join(lines)
 
-
     await UserAnswers.create(user=user, test=test, score=correct)
 
     header = f"Sizning natijangiz: {correct}/{total}"
@@ -93,3 +78,21 @@ async def check_test(message: Message):
 
     body += f"To'g'ri javoblar:\n{correct_table}"
     await message.answer(body[:4000])
+
+@router.message(F.text.regexp(r'^::(\d+)::(.+)$'))
+async def check_test_colons(message: Message):
+    match = re.match(r'^::(\d+)::(.+)$', message.text.strip())
+    test_code = match.group(1)
+    user_answers = match.group(2)
+    await process_test_check(message, test_code, user_answers)
+
+@router.message(F.text.startswith('test '))
+async def check_test_old(message: Message):
+    text = (message.text or '').strip()
+    parts = text.split(maxsplit=2)
+    if len(parts) < 3:
+        await message.answer("To'g'ri format: test <test_kodi> <javoblar>\nMasalan: test 123 1a2b3c10d yoki test 123 abcd")
+        return
+
+    _, test_code_raw, user_answer_raw = parts
+    await process_test_check(message, test_code_raw, user_answer_raw)

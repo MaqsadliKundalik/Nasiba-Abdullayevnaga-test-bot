@@ -18,23 +18,34 @@ def check_test_keys_format(test_key: str) -> bool:
     pattern = r'^(?:\d+[a-zA-Z])+$'
     return bool(re.fullmatch(pattern, test_key))
 
-@router.message(F.text.startswith('new '))
-async def manage_test(message: Message):
-    test_keys = message.text.split()[2]
-    test_code = message.text.split()[1]
-
-    existing_test = await Tests.filter(test_code=test_code).first()
-    if existing_test:
-        await message.answer("Bu test kodi allaqachon mavjud. Iltimos, boshqa kod kiriting.")
+@router.message(F.text.startswith('//'))
+async def create_test_slash(message: Message):
+    test_keys = message.text[2:].strip()
+    if not test_keys:
+        await message.answer("Test kalitlarini kiriting. Namuna: //1a2b3c...")
         return
 
-    user = await User.get(tg_id=message.from_user.id)
     if not check_test_keys_format(test_keys):
         await message.answer("Test kaliti noto'g'ri formatda. Iltimos, to'g'ri formatda kiriting (masalan: 1a2b3c...).")
         return
 
-    test = await Tests.create(user=user, test_keys=test_keys, test_code=test_code)
-    await message.answer(f"Yangi test yaratildi!\n\nTest kodi: `{test.test_code}`", parse_mode="MARKDOWN")
+    # Avtomatik test kodi yaratish
+    max_test = await Tests.all().order_by('-id').first()
+    
+    # Raqamli test kodlarini qidirish
+    all_tests = await Tests.all()
+    max_code = 0
+    for t in all_tests:
+        if t.test_code.isdigit():
+            max_code = max(max_code, int(t.test_code))
+    
+    new_code = str(max_code + 1)
+    
+    user = await User.get(tg_id=message.from_user.id)
+    test = await Tests.create(user=user, test_keys=test_keys, test_code=new_code)
+    
+    await message.answer(f"✅ Yangi test yaratildi!\n\n🔢 Test kodi: `{test.test_code}`\n🔑 Kalitlar: `{test.test_keys}`", parse_mode="MARKDOWN")
+
 
 @router.message(F.text.startswith('stop '))
 async def stop_test(message: Message):

@@ -3,6 +3,8 @@ import os
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHANNEL_ID = os.getenv("CHANNEL_ID")
+CHANNEL_URL = os.getenv("CHANNEL_URL")
 ADMINS = os.getenv("ADMINS")
 ADMINS = [int(admin.strip()) for admin in ADMINS.split(",")]
 
