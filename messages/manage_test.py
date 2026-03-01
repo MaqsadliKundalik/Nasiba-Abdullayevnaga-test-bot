@@ -18,6 +18,9 @@ def check_test_keys_format(test_key: str) -> bool:
     pattern = r'^(?:\d+[a-zA-Z])+$'
     return bool(re.fullmatch(pattern, test_key))
 
+def count_questions(test_keys: str) -> int:
+    return len(re.findall(r'\d+[a-zA-Z]', test_keys))
+
 @router.message(F.text.startswith('//'))
 async def create_test_slash(message: Message):
     test_keys = message.text[2:].strip()
@@ -44,7 +47,7 @@ async def create_test_slash(message: Message):
     user = await User.get(tg_id=message.from_user.id)
     test = await Tests.create(user=user, test_keys=test_keys, test_code=new_code)
     
-    num_questions = len(test_keys) // 2
+    num_questions = count_questions(test_keys)
     bot_info = await message.bot.get_me()
     bot_username = f"@{bot_info.username}"
     
@@ -124,7 +127,7 @@ async def stop_test(message: Message):
 
     # Sertifikatlar yuborish (Top 3 talik uchun)
     
-    total_questions = len(test.test_keys) // 2
+    total_questions = count_questions(test.test_keys)
     for idx, ans in enumerate(top_answers[:3], 1):
         try:
             cert_filename = f"certificate_{ans.user.id}_{test.test_code}.png"
@@ -245,7 +248,7 @@ async def test_report(message: Message):
         test_answers = await UserAnswers.filter(test=test).select_related('user').order_by('-score', 'created_at').all()
         
         # Har bir test uchun maksimal savol sonini hisoblash
-        test_total_questions = len(test.test_keys) // 2  # test_keys formatida har bir javob 2 ta belgi (masalan: 1a)
+        test_total_questions = count_questions(test.test_keys)
         
         for answer in test_answers:
             student_name = answer.user.name or f"ID:{answer.user.id}"
@@ -268,10 +271,11 @@ async def test_report(message: Message):
         
     # Umumiy jadval yaratish
     summary_start_row = 1
+    total_q_all = sum(count_questions(t.test_keys) for t in tests)
     ws.cell(row=summary_start_row, column=1, value="FISH")
-    ws.cell(row=summary_start_row, column=2, value=f"Yuborilgan javoblar soni({sum(len(t.test_keys)//2 for t in tests)})")
+    ws.cell(row=summary_start_row, column=2, value=f"Yuborilgan javoblar soni({total_q_all})")
     ws.cell(row=summary_start_row, column=3, value="%")
-    ws.cell(row=summary_start_row, column=4, value=f"To'g'ri javoblar soni({sum(len(t.test_keys)//2 for t in tests)})")
+    ws.cell(row=summary_start_row, column=4, value=f"To'g'ri javoblar soni({total_q_all})")
     ws.cell(row=summary_start_row, column=5, value="%")
     ws.cell(row=summary_start_row, column=6, value="Natija(o'rtacha)")
     
@@ -286,7 +290,7 @@ async def test_report(message: Message):
     sorted_students = sorted(student_data.items(), key=lambda x: x[1]['total_correct'], reverse=True)
     
     summary_row = summary_start_row + 1
-    total_questions_all = sum(len(t.test_keys)//2 for t in tests)
+    total_questions_all = sum(count_questions(t.test_keys) for t in tests)
     
     for user_id, data in sorted_students:
         ws.cell(row=summary_row, column=1, value=data['name'])

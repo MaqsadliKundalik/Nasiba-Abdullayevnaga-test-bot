@@ -1,9 +1,10 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
 
-# Font path - using Times New Roman for a premium look
-FONT_PATH = r"C:\Windows\Fonts\times.ttf"
-BOLD_FONT_PATH = r"C:\Windows\Fonts\timesbd.ttf"
+# Font paths - simplified for server compatibility
+# Place times.ttf in the project root directory for best results
+FONT_PATH = "times.ttf"
+DEFAULT_LINUX_FONT = "/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf"
 TEMPLATE_PATH = "template.png"
 
 def generate_certificate(fullname: str, score: int, total: int, output_path: str):
@@ -30,32 +31,33 @@ def generate_certificate(fullname: str, score: int, total: int, output_path: str
     # Calculate percentage
     percentage = round((score / total) * 100) if total > 0 else 0
     
-    # Load fonts - try multiple common paths
-    font_paths = [
-        FONT_PATH,
-        BOLD_FONT_PATH,
-        "times.ttf",  # Local file
-        "/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "arial.ttf"
+    # Load fonts - strictly prioritizing local files for reliability on server
+    common_linux_paths = [
+        DEFAULT_LINUX_FONT,
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
     ]
+    
+    # Priority: 1. Locally uploaded times.ttf, 2. Locally uploaded arial.ttf, 3. Linux defaults
+    font_test_paths = [FONT_PATH, "arial.ttf"] + common_linux_paths
     
     name_font = None
     result_font = None
     
-    for path in font_paths:
+    for path in font_test_paths:
         try:
-            name_font = ImageFont.truetype(path, 90)
-            result_font = ImageFont.truetype(path, 30)
-            break
-        except OSError:
+            if os.path.exists(path) or path.startswith("/usr/"):
+                name_font = ImageFont.truetype(path, 90)
+                result_font = ImageFont.truetype(path, 30)
+                # print(f"Successfully loaded font: {path}") # Debug
+                break
+        except Exception:
             continue
             
     if name_font is None:
-        # Fallback to default, but default is usually very small
+        # Extreme fallback
         name_font = ImageFont.load_default()
         result_font = ImageFont.load_default()
-        print("Warning: Standard fonts not found, using default tiny font.")
+        # print("Warning: No fonts found. Using default tiny font.")
 
     # 1. Draw Name
     name_text = fullname.upper()
